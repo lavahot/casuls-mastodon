@@ -1,8 +1,3 @@
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-}
-
 provider "aws" {
   region = var.region
 }
@@ -21,7 +16,8 @@ resource "random_string" "suffix" {
 module "mastodon_cluster" {
   source = "./masto-cluster"
 
-  vpc_id            = module.vpc.vpc_id
-  private_subnet_id = module.vpc.private_subnets[0]
-  public_subnet_id  = module.vpc.public_subnets[0]
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnets
+  public_subnet_ids  = module.vpc.public_subnets
+  vpc_cidr_block     = module.vpc.vpc_cidr_block
 }
