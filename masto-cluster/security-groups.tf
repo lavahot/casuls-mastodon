@@ -12,30 +12,35 @@ locals {
       to_port   = 80
       protocol  = "tcp"
       type      = ["ingress"]
+      cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_https = {
       from_port = 443
       to_port   = 443
       protocol  = "tcp"
       type      = ["ingress"]
+      cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_redis = {
       from_port = 6379
       to_port   = 6379
       protocol  = "tcp"
       type      = ["egress"]
+      cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_s3 = {
       from_port = 443
       to_port   = 443
       protocol  = "tcp"
       type      = ["egress"]
+      cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_efs = {
       from_port = 2049
       to_port   = 2049
       protocol  = "tcp"
       type      = ["egress"]
+      cidr      = ["0.0.0.0/0"]
     }
     # ecs_tasks_cloudwatch = {
     #   from_port = 443
@@ -48,10 +53,12 @@ locals {
     for type in port.type : {
       key = "${port_key}-${type}"
       value = {
-        type      = type
-        from_port = port.from_port
-        to_port   = port.to_port
-        protocol  = port.protocol
+        type                     = type
+        from_port                = port.from_port
+        to_port                  = port.to_port
+        protocol                 = port.protocol
+        cidr                     = lookup(port, "cidr", null)
+        source_security_group_id = lookup(port, "source_security_group_id", null)
       }
     }
   ]])
@@ -61,14 +68,14 @@ locals {
 resource "aws_security_group_rule" "mastodon_sg" {
   for_each = { for port in local.flattened_ports : port.key => port.value }
 
-  description       = each.key
-  type              = each.value.type
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  security_group_id = aws_security_group.ecs_tasks.id
-  self              = true
-  # cidr_blocks       = [var.vpc_cidr_block]
+  description              = each.key
+  type                     = each.value.type
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  security_group_id        = aws_security_group.ecs_tasks.id
+  cidr_blocks              = each.value.cidr
+  source_security_group_id = each.value.source_security_group_id
 
 }
 

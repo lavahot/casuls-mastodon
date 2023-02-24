@@ -23,10 +23,6 @@ data "aws_iam_policy_document" "ecs_task_execution" {
   }
 }
 
-resource "aws_iam_user" "fargate_user" {
-  name = "fargateUser"
-}
-
 data "aws_iam_policy_document" "assume_role_pd" {
   statement {
     actions = ["sts:AssumeRole"]
