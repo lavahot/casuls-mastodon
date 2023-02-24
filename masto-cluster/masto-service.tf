@@ -171,7 +171,7 @@ resource "aws_ecs_service" "mastodon" {
   name                = "mastodon"
   cluster             = aws_ecs_cluster.mastodon.id
   task_definition     = aws_ecs_task_definition.mastodon_service.id
-  desired_count       = 1
+  desired_count       = 3
   launch_type         = "FARGATE"
   scheduling_strategy = "REPLICA"
   depends_on = [
@@ -180,11 +180,11 @@ resource "aws_ecs_service" "mastodon" {
   ]
 
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.masto_tg.arn
-  #   container_name   = "mastodon"
-  #   container_port   = 80
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.masto_tg.arn
+    container_name   = "mastodon"
+    container_port   = 80
+  }
 
   network_configuration {
     subnets          = var.private_subnet_ids
@@ -204,7 +204,7 @@ resource "aws_ecs_service" "mastodon" {
   # }
 
   lifecycle {
-    ignore_changes = [desired_count]
+    ignore_changes = [task_definition, desired_count]
   }
 }
 
@@ -216,8 +216,8 @@ resource "aws_ecs_task_definition" "mastodon_service" {
   family                   = "service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 256
+  memory                   = 512
   task_role_arn            = aws_iam_role.mastodon_task.arn
   execution_role_arn       = aws_iam_role.fargate_runner.arn
 
@@ -227,7 +227,7 @@ resource "aws_ecs_task_definition" "mastodon_service" {
       # image       = "linuxserver/mastodon:4.1.0"
       image       = "nginxdemos/hello"
       networkMode = "awsvpc"
-      port_mappings = [
+      portMappings = [
         {
           containerPort = 80
           hostPort      = 80

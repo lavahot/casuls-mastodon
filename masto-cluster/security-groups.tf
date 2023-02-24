@@ -25,12 +25,12 @@ locals {
       protocol  = "tcp"
       type      = ["egress"]
     }
-    # ecs_tasks_s3 = {
-    #   from_port = 443
-    #   to_port   = 443
-    #   protocol  = "tcp"
-    #   type      = ["egress"]
-    # }
+    ecs_tasks_s3 = {
+      from_port = 443
+      to_port   = 443
+      protocol  = "tcp"
+      type      = ["egress"]
+    }
     ecs_tasks_efs = {
       from_port = 2049
       to_port   = 2049
@@ -73,13 +73,20 @@ resource "aws_security_group_rule" "mastodon_sg" {
 }
 
 resource "aws_security_group_rule" "outbound" {
-  type      = "egress"
-  from_port = 0
-  to_port   = 0
-  protocol  = "-1"
-  # self              = true
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
   security_group_id = aws_security_group.ecs_tasks.id
-  # source_security_group_id = aws_security_group.ecs_tasks.id
-  # cidr_blocks              = [var.vpc_cidr_block]
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+# A security group that allows inbound communication from the alb to the ecs tasks
+resource "aws_security_group_rule" "inbound" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ecs_tasks.id
+  source_security_group_id = aws_security_group.lb_sg.id
 }
