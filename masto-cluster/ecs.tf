@@ -1,3 +1,37 @@
+# FARGATE IAM permissions
+
+data "aws_iam_policy_document" "ecs_task_execution" {
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "assume_role_pd" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "fargate_runner" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = data.aws_iam_policy_document.assume_role_pd.json
+}
+
+
+# CW Log stream for ECS cluster
 resource "aws_cloudwatch_log_stream" "masto_cluster_stream" {
   name           = "masto_cluster_stream"
   log_group_name = aws_cloudwatch_log_group.mastodon_cw_group.name

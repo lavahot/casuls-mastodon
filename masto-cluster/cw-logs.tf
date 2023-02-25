@@ -23,3 +23,22 @@ resource "aws_cloudwatch_log_stream" "mastodon" {
 resource "aws_cloudwatch_log_group" "fargate_runner_cw_group" {
   name = "fargate_runner_cw_group"
 }
+
+# Add cloud logging permissions
+
+data "aws_iam_policy_document" "cw_emitter" {
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "cw_emitter" {
+  name = "cloudwatchEmitter"
+
+  policy = data.aws_iam_policy_document.cw_emitter.json
+}
