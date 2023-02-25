@@ -57,7 +57,7 @@ resource "aws_ecs_service" "mastodon" {
   name                = "mastodon"
   cluster             = aws_ecs_cluster.mastodon.id
   task_definition     = aws_ecs_task_definition.mastodon_service.id
-  desired_count       = 3
+  desired_count       = 1
   launch_type         = "FARGATE"
   scheduling_strategy = "REPLICA"
   depends_on = [
@@ -98,9 +98,9 @@ resource "aws_ecs_task_definition" "mastodon_service" {
 
   container_definitions = jsonencode([
     {
-      name = "mastodon"
-      # image       = "linuxserver/mastodon:4.1.0"
-      image       = "nginxdemos/hello"
+      name  = "mastodon"
+      image = "linuxserver/mastodon:4.1.0"
+      # image       = "nginxdemos/hello"
       networkMode = "awsvpc"
       portMappings = [
         {

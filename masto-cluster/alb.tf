@@ -36,13 +36,13 @@ resource "aws_lb_target_group" "masto_tg" {
   vpc_id      = var.vpc_id
   target_type = "ip"
 
-  health_check {
-    path                = "/"
-    interval            = 30
-    timeout             = 3
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-  }
+  #   health_check {
+  #     path                = "/health"
+  #     interval            = 30
+  #     timeout             = 3
+  #     healthy_threshold   = 2
+  #     unhealthy_threshold = 2
+  #   }
 }
 
 resource "aws_lb_listener" "masto_listener" {
