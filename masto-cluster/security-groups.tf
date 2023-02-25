@@ -42,6 +42,13 @@ locals {
       type      = ["egress"]
       cidr      = ["0.0.0.0/0"]
     }
+    ecs_tasks_efs_secure = {
+      from_port = 2999
+      to_port   = 2999
+      protocol  = "tcp"
+      type      = ["egress"]
+      cidr      = ["0.0.0.0/0"]
+    }
     # ecs_tasks_cloudwatch = {
     #   from_port = 443
     #   to_port   = 443
