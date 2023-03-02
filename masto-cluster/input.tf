@@ -21,3 +21,10 @@ variable "vpc_cidr_block" {
   type        = string
   default     = ""
 }
+
+variable "domain_name" {
+  description = "The domain name of the mastodon instance"
+  type        = string
+  default     = ""
+}
+

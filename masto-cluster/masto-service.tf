@@ -87,12 +87,42 @@ resource "aws_ecs_service" "mastodon" {
 
 data "aws_region" "current" {}
 
+locals {
+  params = {
+    puid         = 1000
+    pgid         = 1000
+    tz           = "America / New_York"
+    local_domain = var.domain_name
+    # TODO: fix this to connect to the instance in the same az when scaling redis
+    redis_host = aws_elasticache_cluster.mastodon.cache_nodes.0.address
+    redis_port = aws_elasticache_cluster.mastodon.cache_nodes.0.port
+    db_host    = aws_rds_cluster.rds_cluster.endpoint
+    db_user    = aws_rds_cluster.rds_cluster.master_username
+    db_pass    = aws_rds_cluster.rds_cluster.master_password
+    db_name    = aws_rds_cluster.rds_cluster.database_name
+    db_port    = aws_rds_cluster.rds_cluster.port
+    es_enabled = false
+    # secret_key_base   = random_string.mastodon_secret_key.result
+    # otp_secret        = random_string.mastodon_otp_secret.result
+    # vapid_private_key = random_string.mastodon_vapid_private_key.result
+    # vapid_public_key  = random_string.mastodon_vapid_public_key.result
+    # smtp_server       = ""
+    # smtp_port         = 25
+    # smtp_login        = ""
+    # smtp_password     = ""
+    smtp_from_address = "notifications@${var.domain_name}"
+    s3_enabled        = true
+    s3_bucket         = aws_s3_bucket.mastodon_media.bucket_domain_name
+  }
+  folded_params = [for k, v in local.params : { name = upper(k), value = tostring(v) }]
+}
+
 resource "aws_ecs_task_definition" "mastodon_service" {
   family                   = "service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 512
+  memory                   = 1024
   task_role_arn            = aws_iam_role.mastodon_task.arn
   execution_role_arn       = aws_iam_role.fargate_runner.arn
 
@@ -102,6 +132,7 @@ resource "aws_ecs_task_definition" "mastodon_service" {
       image = "linuxserver/mastodon:4.1.0"
       # image       = "nginxdemos/hello"
       networkMode = "awsvpc"
+      environment = local.folded_params
       portMappings = [
         {
           containerPort = 80
