@@ -43,3 +43,7 @@ output "elasticache_endpoint" {
   value       = module.mastodon_cluster.elasticache_endpoint
 }
 
+output "nameservers" {
+  description = "Nameservers for the domain"
+  value       = module.domain.nameservers
+}

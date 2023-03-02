@@ -14,8 +14,9 @@ locals {
 
 data "aws_availability_zones" "available" {}
 
-locals {
-  cluster_name = "casuls-ecs-${random_string.suffix.result}"
+module "domain" {
+  source      = "./domain"
+  domain_name = local.domain_name
 }
 
 resource "random_string" "suffix" {
@@ -34,4 +35,17 @@ module "mastodon_cluster" {
   elasticache_subnet_group_name = module.vpc.elasticache_subnet_group_name
 }
 
+
+# Create an alias record for the load balancer
+
+resource "aws_route53_record" "mastodon" {
+  zone_id = module.domain.zone_id
+  name    = local.domain_name
+  type    = "A"
+
+  alias {
+    name                   = module.mastodon_cluster.load_balancer_dns
+    zone_id                = module.mastodon_cluster.load_balancer_zone_id
+    evaluate_target_health = false
+  }
 }
