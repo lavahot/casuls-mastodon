@@ -13,6 +13,11 @@ output "load_balancer_dns" {
   value       = aws_lb.masto_lb.dns_name
 }
 
+output "elasticache_endpoint" {
+  description = "Elasticache endpoint"
+  value       = aws_elasticache_cluster.mastodon.cache_nodes.0.address
+}
+
 output "load_balancer_zone_id" {
   description = "Load balancer zone ID"
   value       = aws_lb.masto_lb.zone_id

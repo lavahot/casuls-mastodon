@@ -28,3 +28,8 @@ variable "domain_name" {
   default     = ""
 }
 
+variable "elasticache_subnet_group_name" {
+  description = "The name of the elasticache subnet group"
+  type        = string
+  default     = ""
+}

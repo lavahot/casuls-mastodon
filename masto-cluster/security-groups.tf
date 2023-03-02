@@ -22,11 +22,11 @@ locals {
       cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_redis = {
-      from_port = 6379
-      to_port   = 6379
-      protocol  = "tcp"
-      type      = ["egress"]
-      cidr      = ["0.0.0.0/0"]
+      from_port                = 6379
+      to_port                  = 6379
+      protocol                 = "tcp"
+      type                     = ["egress"]
+      source_security_group_id = aws_security_group.elasticache_sg.id
     }
     ecs_tasks_s3 = {
       from_port = 443
@@ -36,18 +36,18 @@ locals {
       cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_efs = {
-      from_port = 2049
-      to_port   = 2049
-      protocol  = "tcp"
-      type      = ["egress"]
-      cidr      = ["0.0.0.0/0"]
+      from_port                = 2049
+      to_port                  = 2049
+      protocol                 = "tcp"
+      type                     = ["egress"]
+      source_security_group_id = aws_security_group.efs_sg.id
     }
     ecs_tasks_efs_secure = {
-      from_port = 2999
-      to_port   = 2999
-      protocol  = "tcp"
-      type      = ["egress"]
-      cidr      = ["0.0.0.0/0"]
+      from_port                = 2999
+      to_port                  = 2999
+      protocol                 = "tcp"
+      type                     = ["egress"]
+      source_security_group_id = aws_security_group.efs_sg.id
     }
     # ecs_tasks_cloudwatch = {
     #   from_port = 443

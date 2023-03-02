@@ -32,3 +32,14 @@ output "cluster_id" {
   description = "ECS cluster ARN"
   value       = module.mastodon_cluster.cluster_id
 }
+
+output "load_balancer_dns" {
+  description = "Load balancer DNS name"
+  value       = module.mastodon_cluster.load_balancer_dns
+}
+
+output "elasticache_endpoint" {
+  description = "Elasticache endpoint"
+  value       = module.mastodon_cluster.elasticache_endpoint
+}
+
