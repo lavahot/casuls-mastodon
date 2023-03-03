@@ -94,27 +94,40 @@ locals {
     tz           = "America / New_York"
     local_domain = var.domain_name
     # TODO: fix this to connect to the instance in the same az when scaling redis
-    redis_host = aws_elasticache_cluster.mastodon.cache_nodes.0.address
-    redis_port = aws_elasticache_cluster.mastodon.cache_nodes.0.port
-    db_host    = aws_rds_cluster.rds_cluster.endpoint
-    db_user    = aws_rds_cluster.rds_cluster.master_username
-    db_pass    = aws_rds_cluster.rds_cluster.master_password
-    db_name    = aws_rds_cluster.rds_cluster.database_name
-    db_port    = aws_rds_cluster.rds_cluster.port
-    es_enabled = false
-    # secret_key_base   = random_string.mastodon_secret_key.result
-    # otp_secret        = random_string.mastodon_otp_secret.result
-    # vapid_private_key = random_string.mastodon_vapid_private_key.result
-    # vapid_public_key  = random_string.mastodon_vapid_public_key.result
-    # smtp_server       = ""
-    # smtp_port         = 25
-    # smtp_login        = ""
-    # smtp_password     = ""
+    redis_host        = aws_elasticache_cluster.mastodon.cache_nodes.0.address
+    redis_port        = aws_elasticache_cluster.mastodon.cache_nodes.0.port
+    db_host           = aws_rds_cluster.rds_cluster.endpoint
+    db_user           = aws_rds_cluster.rds_cluster.master_username
+    db_pass           = aws_rds_cluster.rds_cluster.master_password
+    db_name           = aws_rds_cluster.rds_cluster.database_name
+    db_port           = aws_rds_cluster.rds_cluster.port
+    es_enabled        = false
+    smtp_server       = ""
+    smtp_port         = 25
     smtp_from_address = "notifications@${var.domain_name}"
     s3_enabled        = true
     s3_bucket         = aws_s3_bucket.mastodon_media.bucket_domain_name
+    # More s3 things here?
   }
   folded_params = [for k, v in local.params : { name = upper(k), value = tostring(v) }]
+  secret_params = {
+    secret_key_base   = aws_secretsmanager_secret.secret_key_base.arn
+    otp_secret        = aws_secretsmanager_secret.otp.arn
+    vapid_private_key = aws_secretsmanager_secret.vapid_private_key.arn
+    vapid_public_key  = aws_secretsmanager_secret.vapid_public_key.arn
+    smtp_login        = "" #Required
+    smtp_password     = "" #Required
+    # aws_access_key_id  =
+    # aws_secret_access_key =
+    aws_region = data.aws_region.current.name
+  }
+  folded_secret_params = [
+    for k, v in local.params : {
+      name      = upper(k),
+      valueFrom = v,
+      kmsKeyId  = aws_kms_key.mastodon_secrets.arn
+    }
+  ]
 }
 
 resource "aws_ecs_task_definition" "mastodon_service" {
@@ -152,6 +165,7 @@ resource "aws_ecs_task_definition" "mastodon_service" {
           awslogs-stream-prefix = "mastodon"
         }
       }
+      secrets = local.folded_secret_params
     }
   ])
 
