@@ -5,8 +5,8 @@ resource "aws_rds_cluster" "rds_cluster" {
   engine                 = "aurora-postgresql"
   engine_mode            = "serverless"
   engine_version         = "11.16"
-  master_password        = random_password.rds_cluster_password.result
-  master_username        = "mastodon"
+  master_username        = aws_secretsmanager_secret_version.db_user.secret_string
+  master_password        = aws_secretsmanager_secret_version.db_password.secret_string
   storage_encrypted      = true
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name

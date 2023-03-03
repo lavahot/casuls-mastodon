@@ -97,8 +97,6 @@ locals {
     redis_host        = aws_elasticache_cluster.mastodon.cache_nodes.0.address
     redis_port        = aws_elasticache_cluster.mastodon.cache_nodes.0.port
     db_host           = aws_rds_cluster.rds_cluster.endpoint
-    db_user           = aws_rds_cluster.rds_cluster.master_username
-    db_pass           = aws_rds_cluster.rds_cluster.master_password
     db_name           = aws_rds_cluster.rds_cluster.database_name
     db_port           = aws_rds_cluster.rds_cluster.port
     es_enabled        = false
@@ -115,6 +113,8 @@ locals {
     otp_secret        = aws_secretsmanager_secret.otp.arn
     vapid_private_key = aws_secretsmanager_secret.vapid_private_key.arn
     vapid_public_key  = aws_secretsmanager_secret.vapid_public_key.arn
+    db_user           = aws_secretsmanager_secret.db_user.arn
+    db_pass           = aws_secretsmanager_secret.db_password.arn
     smtp_login        = "" #Required
     smtp_password     = "" #Required
     # aws_access_key_id  =

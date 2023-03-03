@@ -102,3 +102,40 @@ resource "random_string" "secret_key_base" {
   length  = 128
   special = false
 }
+
+# DB Credentials
+esource "aws_secretsmanager_secret" "db_user" {
+  name       = "MastodonDBUser"
+  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  tags = {
+    Name = "MastodonDBUser"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "db_user" {
+  secret_id     = aws_secretsmanager_secret.db_password.id
+  secret_string = random_string.db_password.result
+}
+
+resource "random_string" "db_user" {
+  length  = 32
+  special = false
+}
+
+resource "aws_secretsmanager_secret" "db_password" {
+  name       = "MastodonDBPassword"
+  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  tags = {
+    Name = "MastodonDBPassword"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "db_password" {
+  secret_id     = aws_secretsmanager_secret.db_password.id
+  secret_string = random_string.db_password.result
+}
+
+resource "random_string" "db_password" {
+  length  = 32
+  special = false
+}
