@@ -33,3 +33,15 @@ variable "elasticache_subnet_group_name" {
   type        = string
   default     = ""
 }
+
+variable "certificate_arn" {
+  description = "The ARN of the certificate to use for the load balancer"
+  type        = string
+  default     = ""
+}
+
+variable "zone_id" {
+  description = "The ID of the zone to use for the domain"
+  type        = string
+  default     = ""
+}

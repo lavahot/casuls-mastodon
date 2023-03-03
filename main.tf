@@ -27,12 +27,19 @@ resource "random_string" "suffix" {
 module "mastodon_cluster" {
   source = "./masto-cluster"
 
+  # VPC information
   vpc_id                        = module.vpc.vpc_id
   private_subnet_ids            = module.vpc.private_subnets
   public_subnet_ids             = module.vpc.public_subnets
   vpc_cidr_block                = module.vpc.vpc_cidr_block
-  domain_name                   = local.domain_name
   elasticache_subnet_group_name = module.vpc.elasticache_subnet_group_name
+
+  # Domain information
+  domain_name = local.domain_name
+  zone_id     = module.domain.zone_id
+
+  # Certificate information
+  certificate_arn = aws_acm_certificate_validation.mastodon.certificate_arn
 }
 
 

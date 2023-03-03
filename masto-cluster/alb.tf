@@ -57,15 +57,15 @@ resource "aws_lb_listener" "masto_listener" {
 }
 
 # Create HTTPS listener for the load balancer
-#
-# resource "aws_lb_listener" "masto_https_listener" {
-#   load_balancer_arn = aws_lb.masto_lb.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   certificate_arn   = var.certificate_arn
 
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.masto_tg.arn
-#   }
-# }
+resource "aws_lb_listener" "masto_https_listener" {
+  load_balancer_arn = aws_lb.masto_lb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  certificate_arn   = var.certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.masto_tg.arn
+  }
+}
