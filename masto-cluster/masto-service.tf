@@ -153,8 +153,8 @@ resource "aws_ecs_task_definition" "mastodon_service" {
   family                   = "service"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 1024
+  memory                   = 2048
   task_role_arn            = aws_iam_role.mastodon_task.arn
   execution_role_arn       = aws_iam_role.fargate_runner.arn
 
@@ -165,16 +165,10 @@ resource "aws_ecs_task_definition" "mastodon_service" {
       # image       = "nginxdemos/hello"
       networkMode = "awsvpc"
       environment = local.folded_params
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        },
-        {
-          containerPort = 443
-          hostPort      = 443
-        }
-      ]
+      portMappings = [for port in [80, 443] : {
+        containerPort = port
+        hostPort      = port
+      }]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
