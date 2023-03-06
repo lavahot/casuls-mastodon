@@ -29,11 +29,17 @@ resource "aws_cloudwatch_log_group" "fargate_runner_cw_group" {
 data "aws_iam_policy_document" "cw_emitter" {
   statement {
     actions = [
+      # TODO: split ECR and CW permissions
       "ecr:GetAuthorizationToken",
+      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
-    resources = ["*"]
+    resources = [
+      # TODO: restrict to specific log group
+
+      "arn:aws:logs:*:*:*",
+    ]
   }
 }
 
