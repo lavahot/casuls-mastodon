@@ -120,8 +120,8 @@ locals {
     db_name           = aws_rds_cluster.rds_cluster.database_name
     db_port           = aws_rds_cluster.rds_cluster.port
     es_enabled        = false
-    smtp_server       = ""
-    smtp_port         = 25
+    smtp_server       = "email-smtp.${data.aws_region.current.name}.amazonaws.com"
+    smtp_port         = 587
     smtp_from_address = "notifications@${var.domain_name}"
     s3_enabled        = true
     s3_bucket         = aws_s3_bucket.mastodon_media.bucket_domain_name
@@ -135,8 +135,8 @@ locals {
     vapid_public_key  = aws_secretsmanager_secret.vapid_public_key.arn
     db_user           = aws_secretsmanager_secret.db_user.arn
     db_pass           = aws_secretsmanager_secret.db_password.arn
-    smtp_login        = "" #Required
-    smtp_password     = "" #Required
+    smtp_login        = aws_secretsmanager_secret.smtp_user.arn
+    smtp_password     = aws_secretsmanager_secret.smtp_password.arn
     # aws_access_key_id  =
     # aws_secret_access_key =
   }
