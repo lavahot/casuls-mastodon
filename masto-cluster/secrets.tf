@@ -31,6 +31,28 @@ resource "aws_kms_alias" "mastodon_secrets" {
   target_key_id = aws_kms_key.mastodon_secrets.key_id
 }
 
+# Create a kms key policy to allow the ECS task to decrypt secrets
+
+data "aws_iam_policy_document" "kms_decrypt" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+    ]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_iam_role.fargate_runner.arn]
+    }
+  }
+}
+
+resource "aws_kms_grant" "kms_decrypt" {
+  key_id            = aws_kms_key.mastodon_secrets.key_id
+  grantee_principal = aws_iam_role.fargate_runner.arn
+  operations = [
+    "Decrypt",
+  ]
+}
 
 # Secret Manager secrets
 

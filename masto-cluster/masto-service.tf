@@ -51,6 +51,26 @@ resource "aws_iam_role_policy_attachment" "fr_ecr_pa" {
   policy_arn = aws_iam_policy.ecr_image_getter.arn
 }
 
+data "aws_iam_policy_document" "secrets_reader" {
+  statement {
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "secrets_reader" {
+  name = "secretsReader"
+
+  policy = data.aws_iam_policy_document.secrets_reader.json
+}
+
+resource "aws_iam_role_policy_attachment" "fr_secrets_pa" {
+  role       = aws_iam_role.fargate_runner.name
+  policy_arn = aws_iam_policy.secrets_reader.arn
+}
+
 # Mastodon ECS service definition
 
 resource "aws_ecs_service" "mastodon" {
@@ -119,12 +139,11 @@ locals {
     smtp_password     = "" #Required
     # aws_access_key_id  =
     # aws_secret_access_key =
-    aws_region = data.aws_region.current.name
   }
   folded_secret_params = [
-    for k, v in local.params : {
+    for k, v in local.secret_params : {
       name      = upper(k),
-      valueFrom = v,
+      valueFrom = tostring(v),
       kmsKeyId  = aws_kms_key.mastodon_secrets.arn
     }
   ]

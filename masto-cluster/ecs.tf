@@ -9,8 +9,18 @@ data "aws_iam_policy_document" "ecs_task_execution" {
       "ecr:BatchGetImage",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
+      "secretsmanager:GetSecretValue",
     ]
     resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "ecs_task_decrypt_secrets" {
+  statement {
+    actions = [
+      "kms:Decrypt",
+    ]
+    resources = [aws_kms_key.mastodon_secrets.arn]
   }
 }
 
