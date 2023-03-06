@@ -54,14 +54,6 @@ resource "aws_security_group_rule" "rds_sg" {
   source_security_group_id = aws_security_group.ecs_tasks.id
 }
 
-# Create a random password for the RDS instance
-
-resource "random_password" "rds_cluster_password" {
-  length           = 32
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
 # Create a subnet group for the RDS instance
 
 resource "aws_db_subnet_group" "rds_subnet_group" {

@@ -142,6 +142,8 @@ resource "aws_secretsmanager_secret_version" "db_user" {
 resource "random_string" "db_user" {
   length  = 32
   special = false
+  upper   = false
+  number  = false
 }
 
 resource "aws_secretsmanager_secret" "db_password" {
@@ -158,6 +160,7 @@ resource "aws_secretsmanager_secret_version" "db_password" {
 }
 
 resource "random_string" "db_password" {
-  length  = 32
-  special = false
+  length           = 32
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
