@@ -1,16 +1,4 @@
-# Generate a vapid public and private key pair with KMS
-
-# resource "aws_kms_key" "mastodon_vapid" {
-#   description = "Mastodon Vapid Key"
-#   tags = {
-#     Name = "MastodonVapidKey"
-#   }
-# }
-
-# resource "aws_kms_alias" "mastodon_vapid" {
-#   name          = "alias/MastodonVapidKey"
-#   target_key_id = aws_kms_key.mastodon_vapid.key_id
-# }
+# Generate a vapid public and private key pair for web push notifications with TLS
 
 resource "tls_private_key" "mastodon_vapid" {
   algorithm   = "ECDSA"
@@ -56,11 +44,16 @@ resource "aws_kms_grant" "kms_decrypt" {
 
 # Secret Manager secrets
 
+locals {
+  recovery_window_in_days = 0
+}
+
 # Vapid Keypair
 
 resource "aws_secretsmanager_secret" "vapid_private_key" {
-  name       = "MastodonVapidPrivateKey"
-  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  name                    = "MastodonVapidPrivateKey"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonVapidPrivateKey"
   }
@@ -72,8 +65,9 @@ resource "aws_secretsmanager_secret_version" "vapid_private_key" {
 }
 
 resource "aws_secretsmanager_secret" "vapid_public_key" {
-  name       = "MastodonVapidPublicKey"
-  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  name                    = "MastodonVapidPublicKey"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonVapidPublicKey"
   }
@@ -88,8 +82,8 @@ resource "aws_secretsmanager_secret_version" "vapid_public_key" {
 
 resource "aws_secretsmanager_secret" "otp" {
   name                    = "MastodonOTP"
-  recovery_window_in_days = 30
   kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonOTP"
   }
@@ -108,8 +102,9 @@ resource "random_string" "otp" {
 # Secret Key Base
 
 resource "aws_secretsmanager_secret" "secret_key_base" {
-  name       = "MastodonSecretKeyBase"
-  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  name                    = "MastodonSecretKeyBase"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonSecretKeyBase"
   }
@@ -126,9 +121,10 @@ resource "random_string" "secret_key_base" {
 }
 
 # DB Credentials
-esource "aws_secretsmanager_secret" "db_user" {
-  name       = "MastodonDBUser"
-  kms_key_id = aws_kms_key.mastodon_secrets.arn
+resource "aws_secretsmanager_secret" "db_user" {
+  name                    = "MastodonDBUser"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonDBUser"
   }
@@ -147,8 +143,9 @@ resource "random_string" "db_user" {
 }
 
 resource "aws_secretsmanager_secret" "db_password" {
-  name       = "MastodonDBPassword"
-  kms_key_id = aws_kms_key.mastodon_secrets.arn
+  name                    = "MastodonDBPassword"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
   tags = {
     Name = "MastodonDBPassword"
   }
