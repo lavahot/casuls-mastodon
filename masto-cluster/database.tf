@@ -5,6 +5,7 @@ resource "aws_rds_cluster" "rds_cluster" {
   engine                 = "aurora-postgresql"
   engine_mode            = "serverless"
   engine_version         = "11.16"
+  database_name          = "mastodon"
   master_username        = aws_secretsmanager_secret_version.db_user.secret_string
   master_password        = aws_secretsmanager_secret_version.db_password.secret_string
   storage_encrypted      = true
