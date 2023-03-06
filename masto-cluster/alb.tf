@@ -11,6 +11,14 @@ resource "aws_security_group" "lb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "Allow HTTPS traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -29,30 +37,35 @@ resource "aws_lb" "masto_lb" {
   enable_deletion_protection = false
 }
 
-resource "aws_lb_target_group" "masto_tg" {
-  name        = "masto-tg"
-  port        = 80
-  protocol    = "HTTP"
+resource "aws_lb_target_group" "masto_tg_https" {
+  name        = "masto-tg-https"
+  port        = 443
+  protocol    = "HTTPS"
   vpc_id      = var.vpc_id
   target_type = "ip"
 
-  #   health_check {
-  #     path                = "/health"
-  #     interval            = 30
-  #     timeout             = 3
-  #     healthy_threshold   = 2
-  #     unhealthy_threshold = 2
-  #   }
+  health_check {
+    path                = "/health"
+    interval            = 30
+    timeout             = 10
+    healthy_threshold   = 10
+    unhealthy_threshold = 10
+    protocol            = "HTTPS"
+  }
 }
 
-resource "aws_lb_listener" "masto_listener" {
+resource "aws_lb_listener" "masto_http_listener" {
   load_balancer_arn = aws_lb.masto_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.masto_tg.arn
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
@@ -66,6 +79,6 @@ resource "aws_lb_listener" "masto_https_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.masto_tg.arn
+    target_group_arn = aws_lb_target_group.masto_tg_https.arn
   }
 }

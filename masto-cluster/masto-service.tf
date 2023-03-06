@@ -67,9 +67,9 @@ resource "aws_ecs_service" "mastodon" {
 
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.masto_tg.arn
+    target_group_arn = aws_lb_target_group.masto_tg_https.arn
     container_name   = "mastodon"
-    container_port   = 80
+    container_port   = 443
   }
 
   network_configuration {

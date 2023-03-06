@@ -8,18 +8,18 @@ resource "aws_security_group" "ecs_tasks" {
 locals {
   ecs_tasks_ports = {
     ecs_tasks_http = {
-      from_port = 80
-      to_port   = 80
-      protocol  = "tcp"
-      type      = ["ingress"]
-      cidr      = ["0.0.0.0/0"]
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      type                     = ["ingress"]
+      source_security_group_id = aws_security_group.lb_sg.id
     }
     ecs_tasks_https = {
-      from_port = 443
-      to_port   = 443
-      protocol  = "tcp"
-      type      = ["ingress"]
-      cidr      = ["0.0.0.0/0"]
+      from_port                = 443
+      to_port                  = 443
+      protocol                 = "tcp"
+      type                     = ["ingress"]
+      source_security_group_id = aws_security_group.lb_sg.id
     }
     ecs_tasks_redis = {
       from_port                = 6379
