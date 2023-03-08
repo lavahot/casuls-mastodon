@@ -10,7 +10,7 @@ resource "aws_rds_cluster" "rds_cluster" {
   master_password        = aws_secretsmanager_secret_version.db_password.secret_string
   storage_encrypted      = true
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
+  db_subnet_group_name   = var.rds_subnet_group_name
   scaling_configuration {
     auto_pause               = true
     min_capacity             = 2
@@ -55,9 +55,10 @@ resource "aws_security_group_rule" "rds_sg" {
   source_security_group_id = aws_security_group.ecs_tasks.id
 }
 
-# Create a subnet group for the RDS instance
+# Create a subnet group for the RDS instance if not passed in by VPC module
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
+  count       = length(var.rds_subnet_group_name) > 0 ? 1 : 0
   name        = "rds_subnet_group"
   description = "Subnet group for the RDS instance"
   subnet_ids  = var.private_subnet_ids

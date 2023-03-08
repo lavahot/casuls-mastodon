@@ -45,3 +45,9 @@ variable "zone_id" {
   type        = string
   default     = ""
 }
+
+variable "rds_subnet_group_name" {
+  description = "The name of the RDS subnet group"
+  type        = string
+  default     = ""
+}
