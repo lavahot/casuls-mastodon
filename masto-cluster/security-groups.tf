@@ -63,6 +63,20 @@ locals {
       type                     = ["egress"]
       source_security_group_id = aws_security_group.rds_sg.id
     }
+    ecs_tasks_http_egress = {
+      from_port = 80
+      to_port   = 80
+      protocol  = "tcp"
+      type      = ["egress"]
+      cidr      = ["0.0.0.0/0"]
+    }
+    # ecs_tasks_https_egress = {
+    #   from_port = 443
+    #   to_port   = 443
+    #   protocol  = "tcp"
+    #   type      = ["egress"]
+    #   cidr      = ["0.0.0.0/0"]
+    # }
     # ecs_tasks_cloudwatch = {
     #   from_port = 443
     #   to_port   = 443
