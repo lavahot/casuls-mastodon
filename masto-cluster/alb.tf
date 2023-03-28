@@ -54,6 +54,25 @@ resource "aws_lb_target_group" "masto_tg_https" {
   }
 }
 
+# http target group
+
+resource "aws_lb_target_group" "masto_tg_http" {
+  name        = "masto-tg-http"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    path                = "/health"
+    interval            = 30
+    timeout             = 10
+    healthy_threshold   = 5
+    unhealthy_threshold = 10
+    protocol            = "HTTP"
+  }
+}
+
 resource "aws_lb_listener" "masto_http_listener" {
   load_balancer_arn = aws_lb.masto_lb.arn
   port              = "80"
@@ -79,6 +98,6 @@ resource "aws_lb_listener" "masto_https_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.masto_tg_https.arn
+    target_group_arn = aws_lb_target_group.masto_tg_http.arn
   }
 }

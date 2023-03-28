@@ -51,3 +51,21 @@ variable "rds_subnet_group_name" {
   type        = string
   default     = ""
 }
+
+variable "admin_user_name" {
+  description = "The name of the admin user"
+  type        = string
+  default     = ""
+}
+
+variable "admin_email_address" {
+  description = "The email address of the admin user"
+  type        = string
+  default     = ""
+}
+
+variable "admin_initial_password" {
+  description = "The password of the admin user"
+  type        = string
+  default     = ""
+}

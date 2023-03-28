@@ -41,6 +41,11 @@ module "mastodon_cluster" {
 
   # Certificate information
   certificate_arn = aws_acm_certificate_validation.mastodon.certificate_arn
+
+  # Admin user information
+  admin_user_name        = "LavaHot"
+  admin_email_address    = "lavahot@gmail.com"
+  admin_initial_password = "password"
 }
 
 

@@ -87,9 +87,9 @@ resource "aws_ecs_service" "mastodon" {
 
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.masto_tg_https.arn
+    target_group_arn = aws_lb_target_group.masto_tg_http.arn
     container_name   = "mastodon"
-    container_port   = 443
+    container_port   = 3000
   }
 
   network_configuration {
@@ -109,9 +109,12 @@ data "aws_region" "current" {}
 
 locals {
   params = {
-    puid         = 1000
-    pgid         = 1000
-    tz           = "America / New_York"
+    # linuxserver.io variables
+    # puid = 1000                    # Container user id
+    # pgid = 1000                    # Container group id
+    # tz   = "America / Los_Angeles" #Container timezone
+
+    # Mastodon variables
     local_domain = var.domain_name
     # TODO: fix this to connect to the instance in the same az when scaling redis
     redis_host        = aws_elasticache_cluster.mastodon.cache_nodes.0.address
@@ -123,12 +126,16 @@ locals {
     smtp_server       = "email-smtp.${data.aws_region.current.name}.amazonaws.com"
     smtp_port         = 587
     smtp_from_address = "notifications@${var.domain_name}"
-    s3_enabled        = true
+    s3_enabled        = false
     s3_bucket         = aws_s3_bucket.mastodon_media.bucket_domain_name
     # More s3 things here?
+
+    # Bitnami variables
+    allow_empty_password = true
   }
   folded_params = [for k, v in local.params : { name = upper(k), value = tostring(v) }]
   secret_params = {
+    # Mastodon secrets
     secret_key_base   = aws_secretsmanager_secret.secret_key_base.arn
     otp_secret        = aws_secretsmanager_secret.otp.arn
     vapid_private_key = aws_secretsmanager_secret.vapid_private_key.arn
@@ -137,6 +144,16 @@ locals {
     db_pass           = aws_secretsmanager_secret.db_password.arn
     smtp_login        = aws_secretsmanager_secret.smtp_user.arn
     smtp_password     = aws_secretsmanager_secret.smtp_password.arn
+    # redis_username    = aws_secretsmanager_secret.redis_username.arn
+    # redis_password    = aws_secretsmanager_secret.redis_password.arn
+
+    # # Bitnami secrets
+    mastodon_admin_username = aws_secretsmanager_secret.mastodon_admin_username.arn
+    mastodon_admin_password = aws_secretsmanager_secret.mastodon_admin_password.arn
+    mastodon_admin_email    = aws_secretsmanager_secret.mastodon_admin_email.arn
+    # mastodon_https_enabled  = true
+    # mastodon_allow_all_domains = false
+
     # aws_access_key_id  =
     # aws_secret_access_key =
   }
@@ -150,7 +167,7 @@ locals {
 }
 
 resource "aws_ecs_task_definition" "mastodon_service" {
-  family                   = "service"
+  family                   = "mastodon-web-tier"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
@@ -161,11 +178,12 @@ resource "aws_ecs_task_definition" "mastodon_service" {
   container_definitions = jsonencode([
     {
       name  = "mastodon"
-      image = "linuxserver/mastodon:4.1.0"
+      image = "bitnami/mastodon:4.1.0"
+      # image = "linuxserver/mastodon:4.1.0"
       # image       = "nginxdemos/hello"
       networkMode = "awsvpc"
       environment = local.folded_params
-      portMappings = [for port in [80, 443] : {
+      portMappings = [for port in [3000] : {
         containerPort = port
         hostPort      = port
       }]
@@ -187,7 +205,7 @@ resource "aws_ecs_task_definition" "mastodon_service" {
 
     efs_volume_configuration {
       file_system_id          = aws_efs_file_system.mastofs.id
-      root_directory          = "/config"
+      root_directory          = "/bitnami"
       transit_encryption      = "ENABLED"
       transit_encryption_port = 2999
       authorization_config {

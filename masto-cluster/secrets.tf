@@ -161,3 +161,51 @@ resource "random_string" "db_password" {
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
+
+# A secret for the admin username
+
+resource "aws_secretsmanager_secret" "mastodon_admin_username" {
+  name                    = "MastodonAdminUsername"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
+  tags = {
+    Name = "MastodonAdminUsername"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "mastodon_admin_username" {
+  secret_id     = aws_secretsmanager_secret.mastodon_admin_username.id
+  secret_string = var.admin_user_name
+}
+
+# A secret for the admin email
+
+resource "aws_secretsmanager_secret" "mastodon_admin_email" {
+  name                    = "MastodonAdminEmail"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
+  tags = {
+    Name = "MastodonAdminEmail"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "mastodon_admin_email" {
+  secret_id     = aws_secretsmanager_secret.mastodon_admin_email.id
+  secret_string = var.admin_email_address
+}
+
+# A secret for the admin password
+
+resource "aws_secretsmanager_secret" "mastodon_admin_password" {
+  name                    = "MastodonAdminPassword"
+  kms_key_id              = aws_kms_key.mastodon_secrets.arn
+  recovery_window_in_days = local.recovery_window_in_days
+  tags = {
+    Name = "MastodonAdminPassword"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "mastodon_admin_password" {
+  secret_id     = aws_secretsmanager_secret.mastodon_admin_password.id
+  secret_string = var.admin_initial_password
+}
