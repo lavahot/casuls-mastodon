@@ -58,7 +58,7 @@ resource "aws_security_group_rule" "rds_sg" {
 # Create a subnet group for the RDS instance if not passed in by VPC module
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
-  count       = length(var.rds_subnet_group_name) > 0 ? 1 : 0
+  count       = length(var.rds_subnet_group_name) > 0 ? 0 : 1
   name        = "rds_subnet_group"
   description = "Subnet group for the RDS instance"
   subnet_ids  = var.private_subnet_ids

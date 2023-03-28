@@ -32,6 +32,7 @@ module "mastodon_cluster" {
   private_subnet_ids            = module.vpc.private_subnets
   public_subnet_ids             = module.vpc.public_subnets
   vpc_cidr_block                = module.vpc.vpc_cidr_block
+  rds_subnet_group_name         = module.vpc.database_subnet_group_name
   elasticache_subnet_group_name = module.vpc.elasticache_subnet_group_name
 
   # Domain information
