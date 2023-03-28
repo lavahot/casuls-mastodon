@@ -48,8 +48,8 @@ resource "aws_security_group" "rds_sg" {
 
 resource "aws_security_group_rule" "rds_sg" {
   type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
+  from_port                = aws_rds_cluster.rds_cluster.port
+  to_port                  = aws_rds_cluster.rds_cluster.port
   protocol                 = "tcp"
   security_group_id        = aws_security_group.rds_sg.id
   source_security_group_id = aws_security_group.ecs_tasks.id

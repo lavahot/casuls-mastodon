@@ -22,8 +22,8 @@ locals {
       source_security_group_id = aws_security_group.lb_sg.id
     }
     ecs_tasks_redis = {
-      from_port                = 6379
-      to_port                  = 6379
+      from_port                = aws_elasticache_cluster.mastodon.cache_nodes.0.port
+      to_port                  = aws_elasticache_cluster.mastodon.cache_nodes.0.port
       protocol                 = "tcp"
       type                     = ["egress"]
       source_security_group_id = aws_security_group.elasticache_sg.id
@@ -57,8 +57,8 @@ locals {
       cidr      = ["0.0.0.0/0"]
     }
     ecs_tasks_rds = {
-      from_port                = 5432
-      to_port                  = 5432
+      from_port                = aws_rds_cluster.rds_cluster.port
+      to_port                  = aws_rds_cluster.rds_cluster.port
       protocol                 = "tcp"
       type                     = ["egress"]
       source_security_group_id = aws_security_group.rds_sg.id
