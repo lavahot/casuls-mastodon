@@ -83,6 +83,7 @@ resource "aws_ecs_service" "mastodon" {
   depends_on = [
     aws_iam_role.mastodon_task,
     aws_iam_role_policy_attachment.masto_cw,
+    aws_lb_listener.masto_http,
   ]
 
 
