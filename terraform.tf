@@ -22,4 +22,13 @@ terraform {
   }
 
   required_version = "~> 1.3"
+
+  cloud {
+    organization = "Volcanic-Inc"
+
+    workspaces {
+      name = "Casuls-Mastodon"
+    }
+  }
+
 }
