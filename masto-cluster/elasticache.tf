@@ -15,6 +15,12 @@ resource "aws_elasticache_cluster" "mastodon" {
   port               = 6379
   subnet_group_name  = length(var.elasticache_subnet_group_name) > 0 ? var.elasticache_subnet_group_name : aws_elasticache_subnet_group.elasticache_subnet_group.0.name
   security_group_ids = [aws_security_group.elasticache_sg.id]
+
+  # TODO: set maxmemory policy to 'noeviction' to avoid errors when the cache is full.
+  # See https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Replication.Redis-RedisCluster.Concepts.html#Replication.Redis-RedisCluster.Concepts.RedisEvictionPolicy
+  # See Terraform docs for the parameter_group_name parameter: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_cluster
+  # parameter_group_name = "default.redis6.x"
+
   log_delivery_configuration {
     destination      = aws_cloudwatch_log_group.elasticache.name
     destination_type = "cloudwatch-logs"
