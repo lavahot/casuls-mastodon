@@ -61,7 +61,7 @@ resource "aws_secretsmanager_secret" "vapid_private_key" {
 
 resource "aws_secretsmanager_secret_version" "vapid_private_key" {
   secret_id     = aws_secretsmanager_secret.vapid_private_key.id
-  secret_string = tls_private_key.mastodon_vapid.private_key_pem
+  secret_string = replace(replace(base64encode(trimspace(tls_private_key.mastodon_vapid.private_key_openssh)), "+", "-"), "/", "_")
 }
 
 resource "aws_secretsmanager_secret" "vapid_public_key" {
@@ -75,7 +75,7 @@ resource "aws_secretsmanager_secret" "vapid_public_key" {
 
 resource "aws_secretsmanager_secret_version" "vapid_public_key" {
   secret_id     = aws_secretsmanager_secret.vapid_public_key.id
-  secret_string = tls_private_key.mastodon_vapid.public_key_pem
+  secret_string = replace(replace(base64encode(trimspace(tls_private_key.mastodon_vapid.public_key_openssh)), "+", "-"), "/", "_")
 }
 
 # OTP Secret

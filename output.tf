@@ -47,3 +47,13 @@ output "nameservers" {
   description = "Nameservers for the domain"
   value       = module.domain.nameservers
 }
+
+output "vapid_public_key_pem" {
+  description = "Vapid public key"
+  value       = module.mastodon_cluster.vapid_public_key_pem
+}
+
+output "vapid_public_key_openssh" {
+  description = "Vapid public key in OpenSSH format"
+  value       = module.mastodon_cluster.vapid_public_key_openssh
+}
